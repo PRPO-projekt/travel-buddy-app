@@ -19,86 +19,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.get
-import io.ktor.http.appendPathSegments
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.launch
-import kotlinx.io.IOException
-import kotlinx.serialization.Serializable
 
-const val stopsApiEndpoint = "http://130.61.10.203:8080"
-
-@Serializable
-data class Stop(
-    val id: String,
-    val name: String,
-    val lat: Double,
-    val lon: Double
-)
-
-private val client = HttpClient(CIO) {
-    install(ContentNegotiation) {
-        json()
-    }
-}
-
-suspend fun getStopResults(stopName: String): List<Stop> {
-    try {
-        val stops: List<Stop> = client.get("$stopsApiEndpoint/stops") {
-            url {
-                parameters.append("name", stopName)
-            }
-        }.body()
-
-        return stops
-    } catch (ex: IOException) {
-        return listOf()
-    }
-}
-
-@Serializable
-data class Trip(
-    val id: String,
-    val routeId: String,
-    val tripHeadsign: String?,
-    val blockId: Int?
-)
-
-@Serializable
-data class Route(
-    val id: String,
-    val shortName: String? = null,
-    val longName: String? = null,
-)
-
-
-@Serializable
-data class Departure(
-    val uuid: String,
-    val depTime: String,
-    val trip: Trip,
-    val route: Route
-)
-
-@Serializable
-data class Departures(
-    val stop: Stop,
-    val departures: List<Departure>
-)
-
-suspend fun getStopDepartures(stopId: String): Departures {
-    val deps: Departures = client.get(stopsApiEndpoint) {
-        url {
-            appendPathSegments("stops", stopId, "departures")
-        }
-    }.body()
-
-    return deps
-}
+import si.travelbuddy.travelbuddy.model.*
 
 @Composable
 fun StopsList(items: List<Stop>) {
@@ -146,7 +69,10 @@ fun DeparturesView(deps: List<Departure>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StopsRoute() {
+fun StopsRoute(
+    onFindStops: suspend (String) -> List<Stop>,
+    onFindStopDepartures: suspend (String) -> Departures
+    ) {
     var searchText by rememberSaveable { mutableStateOf("") }
     var active by rememberSaveable { mutableStateOf(false) }
 
@@ -166,7 +92,7 @@ fun StopsRoute() {
                 searchText = it
                 if (searchText.isNotEmpty()) {
                     coroutineScope.launch {
-                        items = getStopResults("$searchText.*")
+                        items = onFindStops("$searchText.*")
                     }
                 }
             },
@@ -174,7 +100,7 @@ fun StopsRoute() {
                 active = false
 
                 coroutineScope.launch {
-                    val item = getStopResults(it)
+                    val item = onFindStops(it)
 
                     if (item.isEmpty()) {
                         currentStop = null;
@@ -183,7 +109,7 @@ fun StopsRoute() {
 
                     currentStop = item[0];
 
-                    currentStopDepartures = getStopDepartures(item[0].id).departures
+                    currentStopDepartures = onFindStopDepartures(item[0].id).departures
                 }
             },
             active = active,
