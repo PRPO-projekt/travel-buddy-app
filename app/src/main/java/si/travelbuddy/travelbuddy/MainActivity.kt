@@ -23,12 +23,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
@@ -39,6 +38,7 @@ import si.travelbuddy.travelbuddy.api.TimetableClient
 import si.travelbuddy.travelbuddy.ui.stops.StopsRoute
 import si.travelbuddy.travelbuddy.ui.stops.StopsViewModel
 import si.travelbuddy.travelbuddy.ui.theme.TravelBuddyTheme
+import si.travelbuddy.travelbuddy.ui.ticket.TicketRoute
 
 class MainActivity : ComponentActivity() {
     private val httpClient by lazy {
@@ -78,25 +78,18 @@ class MainActivity : ComponentActivity() {
                             StopsRoute(
                                 onFindStops = { timetableClient.getStopResults(it) },
                                 onFindStopDepartures = { timetableClient.getStopDepartures(it) },
-                                viewModel = StopsViewModel()
+                                viewModel = StopsViewModel(),
+                                onPurchaseTicket = { trip, stop ->
+                                    navController.navigate(Ticket(trip, stop))
+                                }
                             )
                         }
                         composable<Trip> {
                             Greeting("Linux")
                         }
-                        composable("ticket" +
-                                "?tripId={tripId}" +
-                                "&stopId={stopId}",
-                            arguments = listOf(
-                                navArgument("tripId") {
-                                    type = NavType.StringType
-                                },
-                                navArgument("stopId") {
-                                    type = NavType.StringType
-                                }
-                            )
-                        ) {
-
+                        composable<Ticket> {
+                            val ticket: Ticket = it.toRoute()
+                            TicketRoute(ticket.stop, ticket.trip)
                         }
                     }
                 }
@@ -126,6 +119,10 @@ object Stops
 
 @kotlinx.serialization.Serializable
 object Trip
+
+@kotlinx.serialization.Serializable
+data class Ticket(val stop: String,
+                  val trip: String)
 
 data class TopLevelRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)
 
