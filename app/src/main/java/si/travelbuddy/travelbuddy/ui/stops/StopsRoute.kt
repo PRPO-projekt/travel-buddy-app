@@ -4,24 +4,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DockedSearchBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 
 import si.travelbuddy.travelbuddy.model.*
+import si.travelbuddy.travelbuddy.ui.StopsSearchBar
 
 @Composable
 fun StopsList(items: List<Stop>) {
@@ -56,7 +51,8 @@ fun DeparturesView(deps: List<Departure>) {
     Column(
         Modifier
             .verticalScroll(rememberScrollState())
-            .fillMaxWidth()) {
+            .fillMaxWidth()
+    ) {
         deps.forEach {
             Box(Modifier.fillMaxWidth()) {
                 Text(
@@ -67,56 +63,30 @@ fun DeparturesView(deps: List<Departure>) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StopsRoute(
     onFindStops: suspend (String) -> List<Stop>,
     onFindStopDepartures: suspend (String) -> Departures
-    ) {
-    var searchText by rememberSaveable { mutableStateOf("") }
-    var active by rememberSaveable { mutableStateOf(false) }
-
-    var items by remember { mutableStateOf(listOf<Stop>()) }
-
+) {
     var currentStop by remember { mutableStateOf<Stop?>(null) }
     var currentStopDepartures by remember { mutableStateOf(listOf<Departure>()) }
 
-    val coroutineScope = rememberCoroutineScope()
-
     Column(Modifier.fillMaxSize()) {
-        DockedSearchBar(
-            modifier = Modifier
-                .padding(top = 8.dp),
-            query = searchText,
-            onQueryChange = {
-                searchText = it
-                if (searchText.isNotEmpty()) {
-                    coroutineScope.launch {
-                        items = onFindStops("$searchText.*")
-                    }
-                }
-            },
+        StopsSearchBar(
+            onFindStops = onFindStops,
             onSearch = {
-                active = false
+                val stops = onFindStops(it)
 
-                coroutineScope.launch {
-                    val item = onFindStops(it)
-
-                    if (item.isEmpty()) {
-                        currentStop = null;
-                        return@launch
-                    }
-
-                    currentStop = item[0];
-
-                    currentStopDepartures = onFindStopDepartures(item[0].id).departures
+                if (stops.isEmpty()) {
+                    currentStop = null;
+                    return@StopsSearchBar
                 }
-            },
-            active = active,
-            onActiveChange = { active = it }
-        ) {
-            StopsList(items)
-        }
+
+                currentStop = stops[0];
+
+                currentStopDepartures = onFindStopDepartures(stops[0].id).departures
+            }
+        )
         StopView(currentStop, currentStopDepartures)
     }
 }
