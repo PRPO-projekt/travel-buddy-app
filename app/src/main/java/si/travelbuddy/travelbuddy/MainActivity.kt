@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -36,12 +35,10 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.HttpTimeoutConfig
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.coroutineScope
 import si.travelbuddy.travelbuddy.api.TimetableClient
 import si.travelbuddy.travelbuddy.ui.stops.StopsRoute
+import si.travelbuddy.travelbuddy.ui.stops.StopsViewModel
 import si.travelbuddy.travelbuddy.ui.theme.TravelBuddyTheme
-import java.io.IOException
-import kotlin.coroutines.coroutineContext
 
 class MainActivity : ComponentActivity() {
     private val httpClient by lazy {
@@ -61,6 +58,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
 
         setContent {
@@ -79,7 +77,8 @@ class MainActivity : ComponentActivity() {
                         composable<Stops> {
                             StopsRoute(
                                 onFindStops = { timetableClient.getStopResults(it) },
-                                onFindStopDepartures = { timetableClient.getStopDepartures(it) }
+                                onFindStopDepartures = { timetableClient.getStopDepartures(it) },
+                                viewModel = StopsViewModel()
                             )
                         }
                         composable<Trip> {

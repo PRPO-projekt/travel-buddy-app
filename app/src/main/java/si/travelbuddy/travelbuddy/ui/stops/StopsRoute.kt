@@ -4,18 +4,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-
-import si.travelbuddy.travelbuddy.model.*
+import androidx.compose.ui.unit.dp
+import si.travelbuddy.travelbuddy.model.Departure
+import si.travelbuddy.travelbuddy.model.Departures
+import si.travelbuddy.travelbuddy.model.Stop
 import si.travelbuddy.travelbuddy.ui.StopsSearchBar
 
 @Composable
@@ -34,20 +36,30 @@ fun StopsList(items: List<Stop>) {
 }
 
 @Composable
-fun StopView(stop: Stop?, deps: List<Departure>) {
+fun StopView(stop: Stop?, deps: List<Departure>, loaded: Boolean) {
     if (stop == null) {
         Text("Search for a stop")
     } else {
         Column(Modifier.fillMaxWidth()) {
             Text("Name: ${stop.name}")
             Text("ID: ${stop.id}")
-            DeparturesView(deps)
+            DeparturesView(deps, loaded)
         }
     }
 }
 
 @Composable
-fun DeparturesView(deps: List<Departure>) {
+fun DeparturesView(deps: List<Departure>, loaded: Boolean) {
+    if (!loaded) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+            return
+        }
+
+    }
     Column(
         Modifier
             .verticalScroll(rememberScrollState())
@@ -66,10 +78,10 @@ fun DeparturesView(deps: List<Departure>) {
 @Composable
 fun StopsRoute(
     onFindStops: suspend (String) -> List<Stop>,
-    onFindStopDepartures: suspend (String) -> Departures
+    onFindStopDepartures: suspend (String) -> Departures,
+    viewModel: StopsViewModel
 ) {
-    var currentStop by remember { mutableStateOf<Stop?>(null) }
-    var currentStopDepartures by remember { mutableStateOf(listOf<Departure>()) }
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(Modifier.fillMaxSize()) {
         StopsSearchBar(
@@ -78,15 +90,16 @@ fun StopsRoute(
                 val stops = onFindStops(it)
 
                 if (stops.isEmpty()) {
-                    currentStop = null;
+                    viewModel.updateStop(null)
                     return@StopsSearchBar
                 }
 
-                currentStop = stops[0];
+                viewModel.updateStop(stops[0])
 
-                currentStopDepartures = onFindStopDepartures(stops[0].id).departures
+                val deps = onFindStopDepartures(stops[0].id).departures
+                viewModel.updateStopDepartures(deps)
             }
         )
-        StopView(currentStop, currentStopDepartures)
+        StopView(uiState.currentStop, uiState.currentStopDepartures, uiState.loadedDepartures)
     }
 }
