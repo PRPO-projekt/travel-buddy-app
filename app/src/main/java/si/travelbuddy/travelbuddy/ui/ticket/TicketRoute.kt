@@ -8,13 +8,14 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import si.travelbuddy.travelbuddy.model.Departure
 import si.travelbuddy.travelbuddy.model.Stop
 import si.travelbuddy.travelbuddy.model.Trip
 
 @Composable
 fun TicketRoute(
-    stopId: String,
-    tripId: String
+    stop: Stop,
+    departure: Departure
 ) {
     Box(contentAlignment = Alignment.Center) {
         Column(
@@ -22,14 +23,14 @@ fun TicketRoute(
         ) {
             Text("Stop")
             TextField(
-                value = stopId,
+                value = stop.name,
                 onValueChange = {},
                 enabled = false
             )
 
-            Text("Trip")
+            Text("Route")
             TextField(
-                value = tripId,
+                value = departure.route.longName ?: "",
                 onValueChange = {},
                 enabled = false
             )

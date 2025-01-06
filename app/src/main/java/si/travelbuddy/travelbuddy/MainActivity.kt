@@ -1,9 +1,11 @@
 package si.travelbuddy.travelbuddy
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -23,6 +25,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -34,11 +37,16 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.HttpTimeoutConfig
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import si.travelbuddy.travelbuddy.api.TimetableClient
+import si.travelbuddy.travelbuddy.model.Departure
+import si.travelbuddy.travelbuddy.model.Stop
 import si.travelbuddy.travelbuddy.ui.stops.StopsRoute
 import si.travelbuddy.travelbuddy.ui.stops.StopsViewModel
 import si.travelbuddy.travelbuddy.ui.theme.TravelBuddyTheme
 import si.travelbuddy.travelbuddy.ui.ticket.TicketRoute
+import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
     private val httpClient by lazy {
@@ -59,6 +67,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val stopsViewModel: StopsViewModel by viewModels()
+
         enableEdgeToEdge()
 
         setContent {
@@ -78,7 +88,7 @@ class MainActivity : ComponentActivity() {
                             StopsRoute(
                                 onFindStops = { timetableClient.getStopResults(it) },
                                 onFindStopDepartures = { timetableClient.getStopDepartures(it) },
-                                viewModel = StopsViewModel(),
+                                viewModel = stopsViewModel,
                                 onPurchaseTicket = { trip, stop ->
                                     navController.navigate(Ticket(trip, stop))
                                 }
@@ -87,7 +97,13 @@ class MainActivity : ComponentActivity() {
                         composable<Trip> {
                             Greeting("Linux")
                         }
-                        composable<Ticket> {
+                        composable<Ticket>(
+                            typeMap = mapOf(
+                                typeOf<Ticket>() to navTypeOf<Ticket>(),
+                                typeOf<Stop>() to navTypeOf<Stop>(),
+                                typeOf<Departure>() to navTypeOf<Departure>()
+                            )
+                        ) {
                             val ticket: Ticket = it.toRoute()
                             TicketRoute(ticket.stop, ticket.trip)
                         }
@@ -121,8 +137,24 @@ object Stops
 object Trip
 
 @kotlinx.serialization.Serializable
-data class Ticket(val stop: String,
-                  val trip: String)
+data class Ticket(val stop: Stop,
+                  val trip: Departure)
+
+inline fun <reified T> navTypeOf(
+    isNullableAllowed: Boolean = false,
+    json: Json = Json,
+) = object : NavType<T>(isNullableAllowed = isNullableAllowed) {
+    override fun get(bundle: Bundle, key: String): T? =
+        bundle.getString(key)?.let(json::decodeFromString)
+
+    override fun parseValue(value: String): T = json.decodeFromString(Uri.decode(value))
+
+    override fun serializeAsValue(value: T): String = Uri.encode(json.encodeToString(value))
+
+    override fun put(bundle: Bundle, key: String, value: T) =
+        bundle.putString(key, json.encodeToString(value))
+
+}
 
 data class TopLevelRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)
 

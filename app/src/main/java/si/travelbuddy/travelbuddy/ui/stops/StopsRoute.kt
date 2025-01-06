@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import si.travelbuddy.travelbuddy.model.Departure
 import si.travelbuddy.travelbuddy.model.Departures
 import si.travelbuddy.travelbuddy.model.Stop
+import si.travelbuddy.travelbuddy.model.Trip
 import si.travelbuddy.travelbuddy.ui.StopsSearchBar
 
 @Composable
@@ -35,7 +36,7 @@ fun StopsList(items: List<Stop>) {
 }
 
 @Composable
-fun StopView(stop: Stop?, deps: List<Departure>, loaded: Boolean, onPurchaseTicket: (String, String) -> Unit) {
+fun StopView(stop: Stop?, deps: List<Departure>, loaded: Boolean, onPurchaseTicket: (Stop, Departure) -> Unit) {
     if (stop == null) {
         Text("Search for a stop")
     } else {
@@ -53,7 +54,7 @@ fun StopView(stop: Stop?, deps: List<Departure>, loaded: Boolean, onPurchaseTick
 }
 
 @Composable
-fun DeparturesView(stop: Stop, deps: List<Departure>, loaded: Boolean, onPurchaseTicket: (String, String) -> Unit) {
+fun DeparturesView(stop: Stop, deps: List<Departure>, loaded: Boolean, onPurchaseTicket: (Stop, Departure) -> Unit) {
     if (!loaded) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -76,7 +77,7 @@ fun DeparturesView(stop: Stop, deps: List<Departure>, loaded: Boolean, onPurchas
                 )
 
                 Button(
-                    onClick = { onPurchaseTicket(stop.id, it.trip.id) }
+                    onClick = { onPurchaseTicket(stop, it) }
                 ) {
                     Text("Purchase ticket")
                 }
@@ -89,7 +90,7 @@ fun DeparturesView(stop: Stop, deps: List<Departure>, loaded: Boolean, onPurchas
 fun StopsRoute(
     onFindStops: suspend (String) -> List<Stop>,
     onFindStopDepartures: suspend (String) -> Departures,
-    onPurchaseTicket: (String, String) -> Unit,
+    onPurchaseTicket: (Stop, Departure) -> Unit,
     viewModel: StopsViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
