@@ -23,8 +23,8 @@ fun StopsSearchBar(
     onFindStops: suspend (String) -> List<Stop>,
     onSearch: suspend (String) -> Unit
 ) {
-    var searchText by rememberSaveable { mutableStateOf("") }
-    var active by rememberSaveable { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
+    var active by remember { mutableStateOf(false) }
 
     var items by remember { mutableStateOf(listOf<Stop>()) }
 
