@@ -46,6 +46,8 @@ import si.travelbuddy.travelbuddy.ui.stops.StopsRoute
 import si.travelbuddy.travelbuddy.ui.stops.StopsViewModel
 import si.travelbuddy.travelbuddy.ui.theme.TravelBuddyTheme
 import si.travelbuddy.travelbuddy.ui.ticket.TicketRoute
+import si.travelbuddy.travelbuddy.ui.trip.TripRoute
+import si.travelbuddy.travelbuddy.ui.trip.TripViewModel
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
@@ -68,6 +70,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val stopsViewModel: StopsViewModel by viewModels()
+        val tripViewModel: TripViewModel by viewModels()
 
         enableEdgeToEdge()
 
@@ -95,7 +98,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable<Trip> {
-                            Greeting("Linux")
+                            TripRoute(
+                                onFindStops = { timetableClient.getStopResults(it) },
+                                viewModel = tripViewModel
+                            )
                         }
                         composable<Ticket>(
                             typeMap = mapOf(
