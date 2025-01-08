@@ -70,6 +70,25 @@ class TripViewModel : ViewModel() {
         }
     }
 
+    fun onSearch(index: Int) {
+        _uiState.update { currentState ->
+            val oldStops = currentState.stops.toMutableList()
+            oldStops[index] = oldStops[index].copy(
+                active = false
+            )
+
+            if (index < oldStops.count() - 1) {
+                oldStops[index + 1] = oldStops[index + 1].copy(
+                    active = true
+                )
+            }
+
+            currentState.copy(
+                stops = oldStops
+            )
+        }
+    }
+
     fun removeStop(index: Int) {
         _uiState.update { currentState ->
             val oldStops = currentState.stops.toMutableList()
