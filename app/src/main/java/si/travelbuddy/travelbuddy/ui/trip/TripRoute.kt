@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
 import si.travelbuddy.travelbuddy.model.Departures
 import si.travelbuddy.travelbuddy.model.Stop
+import si.travelbuddy.travelbuddy.ui.StatefulStopsSearchBar
 import si.travelbuddy.travelbuddy.ui.StopsSearchBar
 
 @Composable
@@ -34,15 +35,22 @@ fun TripRoute(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
     ) {
-        uiState.stops.forEachIndexed { index, _ ->
+        uiState.stops.forEachIndexed { index, s ->
             StopsSearchBar(
-                onFindStops = onFindStops,
-                onSearch = {
+                query = s.query,
+                onQueryChange = {
                     viewModel.updateStop(index, it)
-                }
+                    coroutineScope.launch {
+                        val items = onFindStops(it)
+                        viewModel.updateItems(index, items)
+                    }
+                },
+                onSearch = {},
+                active = s.active,
+                onActiveChange = { viewModel.setActive(index, it) },
+                items = s.items
             )
         }
-
         Row {
             Button(
                 onClick = { viewModel.addStop() }
@@ -50,9 +58,9 @@ fun TripRoute(
                 Text("Add stop")
             }
             Button(
-                onClick = { viewModel.resetStops() }
+                onClick = { viewModel.removeStop(uiState.stops.count() - 1) }
             ) {
-                Text("Reset")
+                Text("Remove stop")
             }
         }
 

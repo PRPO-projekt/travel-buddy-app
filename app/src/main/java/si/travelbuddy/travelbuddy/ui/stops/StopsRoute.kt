@@ -18,6 +18,7 @@ import si.travelbuddy.travelbuddy.model.Departure
 import si.travelbuddy.travelbuddy.model.Departures
 import si.travelbuddy.travelbuddy.model.Stop
 import si.travelbuddy.travelbuddy.model.Trip
+import si.travelbuddy.travelbuddy.ui.StatefulStopsSearchBar
 import si.travelbuddy.travelbuddy.ui.StopsSearchBar
 
 @Composable
@@ -96,14 +97,14 @@ fun StopsRoute(
     val uiState by viewModel.uiState.collectAsState()
 
     Column(Modifier.fillMaxSize()) {
-        StopsSearchBar(
+        StatefulStopsSearchBar(
             onFindStops = onFindStops,
             onSearch = {
                 val stops = onFindStops(it)
 
                 if (stops.isEmpty()) {
                     viewModel.updateStop(null)
-                    return@StopsSearchBar
+                    return@StatefulStopsSearchBar
                 }
 
                 viewModel.updateStop(stops[0])
