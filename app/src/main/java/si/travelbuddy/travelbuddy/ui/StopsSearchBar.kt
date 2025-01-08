@@ -20,6 +20,29 @@ import si.travelbuddy.travelbuddy.ui.stops.StopsList
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StopsSearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onSearch: (String) -> Unit,
+    active: Boolean,
+    onActiveChange: (Boolean) -> Unit,
+    items: List<Stop>
+) {
+    DockedSearchBar(
+        modifier = Modifier
+            .padding(top = 8.dp),
+        query = query,
+        onQueryChange = onQueryChange,
+        onSearch = onSearch,
+        active = active,
+        onActiveChange = onActiveChange
+    ) {
+        StopsList(items)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StatefulStopsSearchBar(
     onFindStops: suspend (String) -> List<Stop>,
     onSearch: suspend (String) -> Unit
 ) {
@@ -30,9 +53,7 @@ fun StopsSearchBar(
 
     val coroutineScope = rememberCoroutineScope()
 
-    DockedSearchBar(
-        modifier = Modifier
-            .padding(top = 8.dp),
+    StopsSearchBar(
         query = searchText,
         onQueryChange = {
             searchText = it
@@ -48,11 +69,10 @@ fun StopsSearchBar(
             coroutineScope.launch {
                 onSearch(it)
             }
-
         },
         active = active,
-        onActiveChange = { active = it }
-    ) {
-        StopsList(items)
-    }
+        onActiveChange = { active = it },
+        items = items
+    )
 }
+
