@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import si.travelbuddy.travelbuddy.model.RouteInfo
 import si.travelbuddy.travelbuddy.model.Stop
 
 data class TripSearchState(
@@ -15,7 +16,9 @@ data class TripSearchState(
 )
 
 data class TripUiState(
-    val stops: List<TripSearchState> = listOf(TripSearchState(), TripSearchState())
+    val stops: List<TripSearchState> = listOf(TripSearchState(), TripSearchState()),
+    val loadingRoute: Boolean = false,
+    val route: RouteInfo? = null
 )
 
 class TripViewModel : ViewModel() {
@@ -96,6 +99,22 @@ class TripViewModel : ViewModel() {
 
             currentState.copy(
                 stops = oldStops
+            )
+        }
+    }
+
+    fun setLoadingRoute(state: Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                loadingRoute = state
+            )
+        }
+    }
+
+    fun setRouteInfo(state: RouteInfo?) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                route = state
             )
         }
     }

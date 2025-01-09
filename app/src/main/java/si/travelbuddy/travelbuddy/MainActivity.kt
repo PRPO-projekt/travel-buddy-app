@@ -39,6 +39,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import si.travelbuddy.travelbuddy.api.RouteClient
 import si.travelbuddy.travelbuddy.api.TimetableClient
 import si.travelbuddy.travelbuddy.model.Departure
 import si.travelbuddy.travelbuddy.model.Stop
@@ -64,6 +65,10 @@ class MainActivity : ComponentActivity() {
 
     private val timetableClient by lazy {
         TimetableClient(httpClient)
+    }
+
+    private val routeClient by lazy {
+        RouteClient(httpClient)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,6 +105,9 @@ class MainActivity : ComponentActivity() {
                         composable<Trip> {
                             TripRoute(
                                 onFindStops = { timetableClient.getStopResults(it) },
+                                onRoute = { fromId, toId, inter ->
+                                    routeClient.getRoute(fromId, toId, inter)
+                                          },
                                 viewModel = tripViewModel
                             )
                         }

@@ -40,7 +40,6 @@ fun StopsSearchBar(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatefulStopsSearchBar(
     onFindStops: suspend (String) -> List<Stop>,
