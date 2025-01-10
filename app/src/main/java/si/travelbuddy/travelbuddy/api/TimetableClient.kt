@@ -9,7 +9,7 @@ import si.travelbuddy.travelbuddy.model.*
 import java.io.IOException
 
 class TimetableClient(_httpClient: HttpClient) {
-    private val apiEndpoint = "http://130.61.10.203:8080"
+    private val apiEndpoint = "http://4.245.99.219:8080"
 
     private val httpClient = _httpClient
 
