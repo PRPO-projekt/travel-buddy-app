@@ -9,6 +9,8 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DirectionsTransit
+import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Icon
@@ -37,12 +39,17 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.HttpTimeoutConfig
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import si.travelbuddy.travelbuddy.api.PoiClient
 import si.travelbuddy.travelbuddy.api.RouteClient
 import si.travelbuddy.travelbuddy.api.TimetableClient
 import si.travelbuddy.travelbuddy.model.Departure
+import si.travelbuddy.travelbuddy.model.Poi
 import si.travelbuddy.travelbuddy.model.Stop
+import si.travelbuddy.travelbuddy.ui.poi.PoiRoute
+import si.travelbuddy.travelbuddy.ui.poi.PoiViewModel
 import si.travelbuddy.travelbuddy.ui.stops.StopsRoute
 import si.travelbuddy.travelbuddy.ui.stops.StopsViewModel
 import si.travelbuddy.travelbuddy.ui.theme.TravelBuddyTheme
@@ -71,11 +78,16 @@ class MainActivity : ComponentActivity() {
         RouteClient(httpClient)
     }
 
+    private val poiClient by lazy {
+        PoiClient(httpClient)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val stopsViewModel: StopsViewModel by viewModels()
         val tripViewModel: TripViewModel by viewModels()
+        val poiViewModel: PoiViewModel by viewModels()
 
         enableEdgeToEdge()
 
@@ -100,6 +112,12 @@ class MainActivity : ComponentActivity() {
                                 onPurchaseTicket = { trip, stop ->
                                     navController.navigate(Ticket(trip, stop))
                                 }
+                            )
+                        }
+                        composable<POI> {
+                            PoiRoute(
+                                onFindPois = { poiClient.getPois(it) },
+                                viewModel = poiViewModel
                             )
                         }
                         composable<Trip> {
@@ -144,13 +162,16 @@ fun GreetingPreview() {
     }
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 object Stops
 
-@kotlinx.serialization.Serializable
+@Serializable
+object POI
+
+@Serializable
 object Trip
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class Ticket(val stop: Stop,
                   val trip: Departure)
 
@@ -178,12 +199,17 @@ fun BottomNavigationBar(navController: NavController) {
         TopLevelRoute(
             name = "Stops",
             route = Stops,
-            icon = Icons.Default.Menu
+            icon = Icons.Default.DirectionsTransit
+        ),
+        TopLevelRoute(
+            name = "POI",
+            route = POI,
+            icon = Icons.Default.Place
         ),
         TopLevelRoute(
             name = "Trip",
             route = Trip,
-            icon = Icons.Default.Place
+            icon = Icons.Default.Explore
         )
     )
 

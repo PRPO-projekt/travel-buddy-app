@@ -1,4 +1,4 @@
-package si.travelbuddy.travelbuddy.ui
+package si.travelbuddy.travelbuddy.ui.stops
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DockedSearchBar
@@ -13,9 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import si.travelbuddy.travelbuddy.model.Departures
 import si.travelbuddy.travelbuddy.model.Stop
-import si.travelbuddy.travelbuddy.ui.stops.StopsList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

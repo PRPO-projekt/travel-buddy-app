@@ -17,9 +17,6 @@ import androidx.compose.ui.Modifier
 import si.travelbuddy.travelbuddy.model.Departure
 import si.travelbuddy.travelbuddy.model.Departures
 import si.travelbuddy.travelbuddy.model.Stop
-import si.travelbuddy.travelbuddy.model.Trip
-import si.travelbuddy.travelbuddy.ui.StatefulStopsSearchBar
-import si.travelbuddy.travelbuddy.ui.StopsSearchBar
 
 @Composable
 fun StopsList(items: List<Stop>) {
