@@ -1,4 +1,4 @@
-package si.travelbuddy.travelbuddy.ui
+package si.travelbuddy.travelbuddy.ui.poi
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DockedSearchBar

@@ -1,5 +1,8 @@
 package si.travelbuddy.travelbuddy.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Poi(
     val id: Int,
     val name: String,
