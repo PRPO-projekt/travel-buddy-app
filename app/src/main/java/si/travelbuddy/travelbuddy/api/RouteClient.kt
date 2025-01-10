@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 class RouteClient(_httpClient: HttpClient) {
-    private val endpoint = "http://79.76.119.18:8081"
+    private val endpoint = "http://4.245.99.219:8081"
 
     private val httpClient = _httpClient
 
