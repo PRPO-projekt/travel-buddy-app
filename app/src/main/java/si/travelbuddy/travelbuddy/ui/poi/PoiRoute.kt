@@ -9,10 +9,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
 import si.travelbuddy.travelbuddy.model.Poi
+import si.travelbuddy.travelbuddy.model.Stop
 
 @Composable
 fun PoiRoute(
     onFindPois: suspend (String) -> List<Poi>,
+    getStop: suspend (String) -> Stop?,
     viewModel: PoiViewModel = PoiViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -40,8 +42,17 @@ fun PoiRoute(
                         return@launch
                     }
 
-                    viewModel.updateItem(pois[0])
+                    val poi = pois[0]
+                    viewModel.updateItem(poi)
                     viewModel.updateActive(false)
+
+                    val stop = getStop(poi.idPostaje.toString())
+                    if (stop != null) {
+                        viewModel.updateNearestStop(stop.name)
+                    }
+                    else {
+                        viewModel.updateNearestStop("")
+                    }
                 }
             },
             active = uiState.searchActive,
@@ -51,7 +62,10 @@ fun PoiRoute(
 
         val curItem = uiState.currentItem
         if (curItem != null) {
-            PoiItem(item = curItem)
+            PoiItem(
+                item = curItem,
+                stopName = uiState.nearestStopName
+            )
         }
     }
 }

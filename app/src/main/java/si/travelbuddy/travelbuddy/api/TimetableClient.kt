@@ -27,6 +27,16 @@ class TimetableClient(_httpClient: HttpClient) {
         }
     }
 
+    suspend fun getStop(stopId: String): Stop? {
+        try {
+            val stop: Stop = httpClient.get("${apiEndpoint}/stops/${stopId}").body()
+
+            return stop
+        } catch (ex: IOException) {
+            return null
+        }
+    }
+
     suspend fun getStopDepartures(stopId: String): Departures {
         val deps: Departures = httpClient.get(apiEndpoint) {
             url {

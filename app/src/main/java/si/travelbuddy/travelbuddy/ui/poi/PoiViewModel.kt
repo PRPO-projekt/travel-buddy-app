@@ -12,7 +12,8 @@ data class PoiUiState(
     val items: List<Poi> = listOf(),
     val searchActive: Boolean = false,
 
-    val currentItem: Poi? = null
+    val currentItem: Poi? = null,
+    val nearestStopName: String = ""
 )
 
 class PoiViewModel : ViewModel() {
@@ -47,6 +48,14 @@ class PoiViewModel : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(
                 currentItem = item
+            )
+        }
+    }
+
+    fun updateNearestStop(name: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                nearestStopName = name
             )
         }
     }

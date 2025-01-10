@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsTransit
 import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -46,7 +45,6 @@ import si.travelbuddy.travelbuddy.api.PoiClient
 import si.travelbuddy.travelbuddy.api.RouteClient
 import si.travelbuddy.travelbuddy.api.TimetableClient
 import si.travelbuddy.travelbuddy.model.Departure
-import si.travelbuddy.travelbuddy.model.Poi
 import si.travelbuddy.travelbuddy.model.Stop
 import si.travelbuddy.travelbuddy.ui.poi.PoiRoute
 import si.travelbuddy.travelbuddy.ui.poi.PoiViewModel
@@ -117,6 +115,7 @@ class MainActivity : ComponentActivity() {
                         composable<POI> {
                             PoiRoute(
                                 onFindPois = { poiClient.getPois(it) },
+                                getStop = { timetableClient.getStop(it) },
                                 viewModel = poiViewModel
                             )
                         }

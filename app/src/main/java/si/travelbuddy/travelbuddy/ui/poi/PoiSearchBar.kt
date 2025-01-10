@@ -1,12 +1,15 @@
 package si.travelbuddy.travelbuddy.ui.poi
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,7 +20,8 @@ import si.travelbuddy.travelbuddy.ui.theme.TravelBuddyTheme
 
 @Composable
 fun PoiItem(
-    item: Poi
+    item: Poi,
+    stopName: String = ""
 ) {
     Column(Modifier.fillMaxSize()) {
         Text(
@@ -28,6 +32,17 @@ fun PoiItem(
         Text(
             text = item.description
         )
+        if (stopName.isNotEmpty()) {
+            Text("Closest stop: $stopName")
+        }
+        else {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
     }
 }
 
@@ -43,7 +58,7 @@ fun PoiItemPreview() {
             lat = 46.04879,
             lon = 14.508546,
             idPostaje = 1122804
-        ))
+        ), "Ljubljana")
     }
 }
 
