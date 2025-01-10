@@ -116,6 +116,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable<POI> {
                             PoiRoute(
+                                onFindPois = { poiClient.getPois(it) },
                                 viewModel = poiViewModel
                             )
                         }

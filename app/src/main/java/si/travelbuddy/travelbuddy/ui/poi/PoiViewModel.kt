@@ -30,7 +30,7 @@ class PoiViewModel : ViewModel() {
     fun updateSearch(text: String) {
         _uiState.update { currentState ->
             currentState.copy(
-                searchText = ""
+                searchText = text
             )
         }
     }

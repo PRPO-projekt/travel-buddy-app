@@ -7,7 +7,7 @@ import kotlinx.io.IOException
 import si.travelbuddy.travelbuddy.model.Poi
 
 class PoiClient(_httpClient: HttpClient) {
-    private val endpoint = "http://4.245.99.219:8081"
+    private val endpoint = "http://4.245.99.219:8090"
 
     private val httpClient = _httpClient
 

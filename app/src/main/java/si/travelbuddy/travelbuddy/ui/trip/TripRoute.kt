@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import si.travelbuddy.travelbuddy.model.RouteInfo
 import si.travelbuddy.travelbuddy.model.Stop
-import si.travelbuddy.travelbuddy.ui.StopsSearchBar
+import si.travelbuddy.travelbuddy.ui.stops.StopsSearchBar
 
 @Composable
 fun TripRoute(
