@@ -37,12 +37,16 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.HttpTimeoutConfig
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import si.travelbuddy.travelbuddy.api.PoiClient
 import si.travelbuddy.travelbuddy.api.RouteClient
 import si.travelbuddy.travelbuddy.api.TimetableClient
 import si.travelbuddy.travelbuddy.model.Departure
+import si.travelbuddy.travelbuddy.model.Poi
 import si.travelbuddy.travelbuddy.model.Stop
+import si.travelbuddy.travelbuddy.ui.poi.PoiRoute
 import si.travelbuddy.travelbuddy.ui.stops.StopsRoute
 import si.travelbuddy.travelbuddy.ui.stops.StopsViewModel
 import si.travelbuddy.travelbuddy.ui.theme.TravelBuddyTheme
@@ -69,6 +73,10 @@ class MainActivity : ComponentActivity() {
 
     private val routeClient by lazy {
         RouteClient(httpClient)
+    }
+
+    private val poiClient by lazy {
+        PoiClient(httpClient)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,6 +109,9 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate(Ticket(trip, stop))
                                 }
                             )
+                        }
+                        composable<Poi> {
+                            PoiRoute()
                         }
                         composable<Trip> {
                             TripRoute(
@@ -144,13 +155,16 @@ fun GreetingPreview() {
     }
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 object Stops
 
-@kotlinx.serialization.Serializable
+@Serializable
+object POI
+
+@Serializable
 object Trip
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class Ticket(val stop: Stop,
                   val trip: Departure)
 

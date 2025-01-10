@@ -36,12 +36,13 @@ class RouteClient(_httpClient: HttpClient) {
 
             val duration = obj.jsonObject["Duration"]?.jsonPrimitive?.intOrNull
 
-            if (duration != null) {
-                return RouteInfo(
+            return if (duration != null) {
+                RouteInfo(
                     duration = duration.seconds
                 )
+
             } else {
-                return null
+                null
             }
         } catch (ex: IOException) {
             return null
