@@ -33,6 +33,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import dev.sargunv.maplibrecompose.compose.MaplibreMap
+import dev.sargunv.maplibrecompose.compose.layer.CircleLayer
+import dev.sargunv.maplibrecompose.compose.rememberCameraState
+import dev.sargunv.maplibrecompose.compose.source.getBaseSource
+import dev.sargunv.maplibrecompose.core.CameraPosition
+import io.github.dellisd.spatialk.geojson.Position
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
@@ -125,6 +131,8 @@ class MainActivity : ComponentActivity() {
                             PoiRoute(
                                 onFindPois = { poiClient.getPois(it) },
                                 getStop = { timetableClient.getStop(it) },
+                                onShowMap = { lat, lon ->
+                                    navController.navigate(MapNav(lat, lon)) },
                                 viewModel = poiViewModel
                             )
                         }
@@ -154,6 +162,33 @@ class MainActivity : ComponentActivity() {
                         ) {
                             val ticket: Ticket = it.toRoute()
                             TicketRoute(ticket.stop, ticket.trip)
+                        }
+                        composable<MapNav>(
+                            typeMap = mapOf(
+                                typeOf<MapNav>() to navTypeOf<MapNav>()
+                            )
+                        ) {
+                            val coords: MapNav = it.toRoute()
+                            val camera = if (coords.lat == null || coords.lon == null) {
+                                rememberCameraState()
+                            } else {
+                                rememberCameraState(
+                                    firstPosition = CameraPosition(
+                                        target = Position(
+                                            latitude = coords.lat,
+                                            longitude = coords.lon
+                                        ),
+                                        zoom = 16.0
+                                    )
+                                )
+                            }
+                            MaplibreMap(
+                                styleUri = "https://tiles.openfreemap.org/styles/liberty",
+                                cameraState = camera
+                            ) {
+                                val tiles = getBaseSource(id = "openmaptiles")
+                                CircleLayer(id = "example", source = tiles)
+                            }
                         }
                     }
                 }
@@ -193,6 +228,9 @@ object User
 @Serializable
 data class Ticket(val stop: Stop,
                   val trip: Departure)
+
+@Serializable
+data class MapNav(val lat: Double? = null, val lon: Double? = null)
 
 inline fun <reified T> navTypeOf(
     isNullableAllowed: Boolean = false,

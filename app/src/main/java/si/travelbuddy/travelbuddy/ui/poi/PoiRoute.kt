@@ -2,6 +2,8 @@ package si.travelbuddy.travelbuddy.ui.poi
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -15,6 +17,7 @@ import si.travelbuddy.travelbuddy.model.Stop
 fun PoiRoute(
     onFindPois: suspend (String) -> List<Poi>,
     getStop: suspend (String) -> Stop?,
+    onShowMap: (Double?, Double?) -> Unit,
     viewModel: PoiViewModel = PoiViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -62,10 +65,15 @@ fun PoiRoute(
 
         val curItem = uiState.currentItem
         if (curItem != null) {
-            PoiItem(
-                item = curItem,
-                stopName = uiState.nearestStopName
-            )
+            Column(modifier = Modifier.fillMaxSize()) {
+                Button(onClick = { onShowMap(curItem.lat, curItem.lon) }) {
+                    Text("Show on map")
+                }
+                PoiItem(
+                    item = curItem,
+                    stopName = uiState.nearestStopName
+                )
+            }
         }
     }
 }
