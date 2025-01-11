@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsTransit
 import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -44,6 +45,7 @@ import kotlinx.serialization.json.Json
 import si.travelbuddy.travelbuddy.api.PoiClient
 import si.travelbuddy.travelbuddy.api.RouteClient
 import si.travelbuddy.travelbuddy.api.TimetableClient
+import si.travelbuddy.travelbuddy.api.UserClient
 import si.travelbuddy.travelbuddy.model.Departure
 import si.travelbuddy.travelbuddy.model.Stop
 import si.travelbuddy.travelbuddy.ui.poi.PoiRoute
@@ -54,6 +56,8 @@ import si.travelbuddy.travelbuddy.ui.theme.TravelBuddyTheme
 import si.travelbuddy.travelbuddy.ui.ticket.TicketRoute
 import si.travelbuddy.travelbuddy.ui.trip.TripRoute
 import si.travelbuddy.travelbuddy.ui.trip.TripViewModel
+import si.travelbuddy.travelbuddy.ui.user.UserRoute
+import si.travelbuddy.travelbuddy.ui.user.UserViewModel
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
@@ -80,12 +84,17 @@ class MainActivity : ComponentActivity() {
         PoiClient(httpClient)
     }
 
+    private val userClient by lazy {
+        UserClient(httpClient)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val stopsViewModel: StopsViewModel by viewModels()
         val tripViewModel: TripViewModel by viewModels()
         val poiViewModel: PoiViewModel by viewModels()
+        val userViewModel: UserViewModel by viewModels()
 
         enableEdgeToEdge()
 
@@ -126,6 +135,14 @@ class MainActivity : ComponentActivity() {
                                     routeClient.getRoute(fromId, toId, inter)
                                           },
                                 viewModel = tripViewModel
+                            )
+                        }
+                        composable<User> {
+                            UserRoute(
+                                onLogin = { username, password ->
+                                    userClient.login(username, password)
+                                },
+                                viewModel = userViewModel
                             )
                         }
                         composable<Ticket>(
@@ -171,6 +188,9 @@ object POI
 object Trip
 
 @Serializable
+object User
+
+@Serializable
 data class Ticket(val stop: Stop,
                   val trip: Departure)
 
@@ -209,6 +229,11 @@ fun BottomNavigationBar(navController: NavController) {
             name = "Trip",
             route = Trip,
             icon = Icons.Default.Explore
+        ),
+        TopLevelRoute(
+            name = "User",
+            route = User,
+            icon = Icons.Default.Person
         )
     )
 
