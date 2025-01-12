@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.RemoveCircleOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -64,7 +66,7 @@ fun TripRoute(
             .verticalScroll(rememberScrollState())
     ) {
         uiState.stops.forEachIndexed { index, s ->
-            Row {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 StopsSearchBar(
                     query = s.query,
                     onQueryChange = {
@@ -110,21 +112,21 @@ fun TripRoute(
                 )
 
                 if (index > 1) {
-                    Button(
-                        onClick = { viewModel.removeStop(index) },
-                        contentPadding = PaddingValues(1.dp),
-                        modifier = Modifier.size(32.dp),
-                        shape = CircleShape
+                    Box(
+                        Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterEnd
                     ) {
-                        Icon(
-                            Icons.Filled.Close,
-                            contentDescription = "Remove stop",
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        Button(
+                            onClick = { viewModel.removeStop(index) },
+                            contentPadding = PaddingValues(1.dp),
+                        ) {
+                            Text(
+                                "Remove"
+                            )
+                        }
                     }
                 }
             }
-
         }
 
         Button(
