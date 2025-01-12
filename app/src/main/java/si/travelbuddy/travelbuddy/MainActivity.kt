@@ -182,15 +182,17 @@ class MainActivity : ComponentActivity() {
                                     tickets
                                 },
                                 onPurchase = { ticketId ->
-                                    val uuid = UUID.randomUUID()
+                                    val uuid = UUID(0, 0)
                                     val userUuid = UUID(0, 0)
-                                    val ticketUuid = UUID(0, 0)
+                                    val ticketUuid = UUID.randomUUID()
 
                                     purchaseClient.createTransaction(uuid, ticketUuid, userUuid)
 
-                                    uuid.toString()
+                                    ticketUuid.toString()
                                 },
-                                onConfirmPurchase = {},
+                                onConfirmPurchase = { transactionId ->
+                                    purchaseClient.updateTransaction(UUID.fromString(transactionId))
+                                },
                                 viewModel = ticketViewModel)
                         }
                         composable<MapNav>(

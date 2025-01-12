@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.update
 import si.travelbuddy.travelbuddy.model.Ticket
 
 data class TicketUiState(
-    val tickets: List<Ticket> = listOf()
+    val tickets: List<Ticket> = listOf(),
+    val purchaseId: String = ""
 )
 
 class TicketViewModel : ViewModel() {
@@ -19,6 +20,14 @@ class TicketViewModel : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(
                 tickets = l
+            )
+        }
+    }
+
+    fun updatePurchaseId(id: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                purchaseId = id
             )
         }
     }

@@ -1,5 +1,6 @@
 package si.travelbuddy.travelbuddy.api
 
+import androidx.compose.animation.core.rememberTransition
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -25,7 +26,7 @@ class PurchaseClient(_httpClient: HttpClient) {
 
     private val httpClient = _httpClient
 
-    suspend fun createTransaction(uuid: UUID, ticketId: UUID, userId: UUID) {
+    suspend fun createTransaction(uuid: UUID, ticketId: UUID, userId: UUID): String {
         try {
             val req = PurchaseRequest(
                 racunId = uuid.toString(),
@@ -38,20 +39,26 @@ class PurchaseClient(_httpClient: HttpClient) {
                 contentType(ContentType.Application.Json)
                 setBody(req)
             }
+
+            return ticketId.toString()
         } catch (ex: IOException) {
-            return
+            return ""
         }
     }
 
-    suspend fun updateTransaction(uuid: UUID) {
+    suspend fun updateTransaction(ticketId: UUID) {
         try {
-            val original: PurchaseRequest = httpClient.get("${apiEndpoint}/${uuid}").body()
+            val forTicket: List<PurchaseRequest> = httpClient.get("${apiEndpoint}/ticketSearch/tickets/${ticketId}").body()
 
-            httpClient.put("$apiEndpoint/${uuid}") {
-                contentType(ContentType.Application.Json)
-                setBody(original.copy(
-                    stanjeRacuna = 1
-                ))
+            if (forTicket.isNotEmpty()) {
+                val transaction = forTicket.first()
+
+                httpClient.put("${apiEndpoint}/ticketSearch/${transaction.racunId}") {
+                    contentType(ContentType.Application.Json)
+                    setBody(transaction.copy(
+                        stanjeRacuna = 1
+                    ))
+                }
             }
         } catch (ex: IOException) {
             return

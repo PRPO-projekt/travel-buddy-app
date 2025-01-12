@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -34,7 +37,9 @@ fun TicketRoute(
 
     Box(contentAlignment = Alignment.Center) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
         ) {
             Text("Stop")
             TextField(
@@ -66,12 +71,33 @@ fun TicketRoute(
                 ) {
                     CircularProgressIndicator()
                 }
-            }
-            else {
+            } else {
                 tickets
                     .filter { it.stopTime == departure.uuid }
                     .forEach {
-                        Text("Found ticket with price: ${it.price}")
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text("Found ticket with price: ${it.price}")
+                            Button(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        val id = onPurchase(it.id)
+                                        viewModel.updatePurchaseId(id)
+                                    }
+
+                                }
+                            ) {
+                                Text("Purchase ticket")
+                            }
+                            Button(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        onConfirmPurchase(uiState.purchaseId)
+                                    }
+                                }
+                            ) {
+                                Text("Confirm purchase")
+                            }
+                        }
                     }
             }
         }
