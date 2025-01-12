@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -27,9 +28,25 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toDateTimePeriod
 import si.travelbuddy.travelbuddy.model.RouteInfo
 import si.travelbuddy.travelbuddy.model.Stop
 import si.travelbuddy.travelbuddy.ui.stops.StopsSearchBar
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneId
+import kotlin.math.roundToInt
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+
+fun epochMillisToDateTime(millis: Long): LocalTime? {
+    return Instant
+        .ofEpochMilli(millis)
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+}
 
 @Composable
 fun TripRoute(
@@ -119,7 +136,7 @@ fun TripRoute(
         if (uiState.loadingRoute) {
             Column {
                 val loadingMsg = uiState.stops.joinToString(" → ") { it.query }
-                Text("Searching route on path $loadingMsg")
+                Text("Planning route on path $loadingMsg")
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -130,8 +147,27 @@ fun TripRoute(
             }
         }
 
-        if (uiState.route != null) {
-            Text(text = uiState.route!!.duration.inWholeSeconds.toString())
+        val route = uiState.route
+        if (route != null) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text(text = "Departure: ${epochMillisToDateTime(route.StartTime)}, " +
+                        "Arrival: ${epochMillisToDateTime(route.EndTime)}")
+                Text(text = "Total duration: ${route.TotalDuration.seconds}")
+                Text(text = "Total distance: ${(route.TotalDistance / 1000.0).roundToInt()} km")
+                Text(text = "Legs: ")
+                route.Legs.forEach {
+                    Text(
+                        text = "From: ${epochMillisToDateTime(it.StartTime)}, " +
+                                "To: ${epochMillisToDateTime(it.EndTime)}"
+                    )
+                    Text(
+                        text = "Mode: ${it.Mode}, Duration: ${it.Duration.seconds}",
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
         }
     }
 }
