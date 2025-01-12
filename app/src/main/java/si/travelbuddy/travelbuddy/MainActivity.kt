@@ -50,6 +50,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import si.travelbuddy.travelbuddy.api.PoiClient
 import si.travelbuddy.travelbuddy.api.RouteClient
+import si.travelbuddy.travelbuddy.api.TicketSearchClient
 import si.travelbuddy.travelbuddy.api.TimetableClient
 import si.travelbuddy.travelbuddy.api.UserClient
 import si.travelbuddy.travelbuddy.model.Departure
@@ -92,6 +93,10 @@ class MainActivity : ComponentActivity() {
 
     private val userClient by lazy {
         UserClient(httpClient)
+    }
+
+    private val ticketSearchClient by lazy {
+        TicketSearchClient(httpClient)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -161,7 +166,10 @@ class MainActivity : ComponentActivity() {
                             )
                         ) {
                             val ticket: Ticket = it.toRoute()
-                            TicketRoute(ticket.stop, ticket.trip)
+                            TicketRoute(ticket.stop, ticket.trip, {
+                                val tickets = ticketSearchClient.ticketSearch()
+                                tickets
+                            })
                         }
                         composable<MapNav>(
                             typeMap = mapOf(
