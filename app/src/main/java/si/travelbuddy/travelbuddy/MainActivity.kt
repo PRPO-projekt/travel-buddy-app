@@ -61,6 +61,7 @@ import si.travelbuddy.travelbuddy.ui.stops.StopsRoute
 import si.travelbuddy.travelbuddy.ui.stops.StopsViewModel
 import si.travelbuddy.travelbuddy.ui.theme.TravelBuddyTheme
 import si.travelbuddy.travelbuddy.ui.ticket.TicketRoute
+import si.travelbuddy.travelbuddy.ui.ticket.TicketViewModel
 import si.travelbuddy.travelbuddy.ui.trip.TripRoute
 import si.travelbuddy.travelbuddy.ui.trip.TripViewModel
 import si.travelbuddy.travelbuddy.ui.user.UserRoute
@@ -106,6 +107,7 @@ class MainActivity : ComponentActivity() {
         val tripViewModel: TripViewModel by viewModels()
         val poiViewModel: PoiViewModel by viewModels()
         val userViewModel: UserViewModel by viewModels()
+        val ticketViewModel: TicketViewModel by viewModels()
 
         enableEdgeToEdge()
 
@@ -169,7 +171,7 @@ class MainActivity : ComponentActivity() {
                             TicketRoute(ticket.stop, ticket.trip, {
                                 val tickets = ticketSearchClient.ticketSearch()
                                 tickets
-                            })
+                            }, viewModel = ticketViewModel)
                         }
                         composable<MapNav>(
                             typeMap = mapOf(

@@ -2,11 +2,16 @@ package si.travelbuddy.travelbuddy.ui.ticket
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,8 +24,10 @@ import si.travelbuddy.travelbuddy.model.Ticket
 fun TicketRoute(
     stop: Stop,
     departure: Departure,
-    onGetTickets: suspend () -> List<Ticket>
+    onGetTickets: suspend () -> List<Ticket>,
+    viewModel: TicketViewModel = TicketViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
     Box(contentAlignment = Alignment.Center) {
@@ -40,11 +47,30 @@ fun TicketRoute(
                 onValueChange = {},
                 enabled = false
             )
-        }
 
-        LaunchedEffect(Unit) {
-            coroutineScope.launch {
-                onGetTickets()
+            LaunchedEffect(departure) {
+                coroutineScope.launch {
+                    val tickets = onGetTickets()
+                    viewModel.updateTickets(tickets)
+                }
+            }
+
+            val tickets = uiState.tickets
+            if (tickets.isEmpty()) {
+                Text("Searching tickets...")
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            else {
+                tickets
+                    .filter { it.stopTime == departure.uuid }
+                    .forEach {
+                        Text("Found ticket with price: ${it.price}")
+                    }
             }
         }
     }
