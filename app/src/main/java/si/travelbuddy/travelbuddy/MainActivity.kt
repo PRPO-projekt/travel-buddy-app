@@ -49,6 +49,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import si.travelbuddy.travelbuddy.api.PoiClient
+import si.travelbuddy.travelbuddy.api.PurchaseClient
 import si.travelbuddy.travelbuddy.api.RouteClient
 import si.travelbuddy.travelbuddy.api.TicketSearchClient
 import si.travelbuddy.travelbuddy.api.TimetableClient
@@ -66,6 +67,7 @@ import si.travelbuddy.travelbuddy.ui.trip.TripRoute
 import si.travelbuddy.travelbuddy.ui.trip.TripViewModel
 import si.travelbuddy.travelbuddy.ui.user.UserRoute
 import si.travelbuddy.travelbuddy.ui.user.UserViewModel
+import java.util.UUID
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
@@ -98,6 +100,10 @@ class MainActivity : ComponentActivity() {
 
     private val ticketSearchClient by lazy {
         TicketSearchClient(httpClient)
+    }
+
+    private val purchaseClient by lazy {
+        PurchaseClient(httpClient)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -168,10 +174,24 @@ class MainActivity : ComponentActivity() {
                             )
                         ) {
                             val ticket: Ticket = it.toRoute()
-                            TicketRoute(ticket.stop, ticket.trip, {
-                                val tickets = ticketSearchClient.ticketSearch()
-                                tickets
-                            }, viewModel = ticketViewModel)
+                            TicketRoute(
+                                ticket.stop,
+                                ticket.trip,
+                                onGetTickets = {
+                                    val tickets = ticketSearchClient.ticketSearch()
+                                    tickets
+                                },
+                                onPurchase = { ticketId ->
+                                    val uuid = UUID.randomUUID()
+                                    val userUuid = UUID(0, 0)
+                                    val ticketUuid = UUID(0, 0)
+
+                                    purchaseClient.createTransaction(uuid, ticketUuid, userUuid)
+
+                                    uuid.toString()
+                                },
+                                onConfirmPurchase = {},
+                                viewModel = ticketViewModel)
                         }
                         composable<MapNav>(
                             typeMap = mapOf(

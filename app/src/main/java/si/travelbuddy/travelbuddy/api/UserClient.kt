@@ -21,6 +21,8 @@ class UserClient(_httpClient: HttpClient) {
 
     private val httpClient = _httpClient
 
+    private var currentUser: User? = null
+
     suspend fun login(username: String, password: String): User? {
         val input = LoginInput(username, password)
 
@@ -29,6 +31,8 @@ class UserClient(_httpClient: HttpClient) {
                 contentType(ContentType.Application.Json)
                 setBody(input)
             }.body()
+
+            currentUser = user
 
             return user
         } catch (ex: Exception) {

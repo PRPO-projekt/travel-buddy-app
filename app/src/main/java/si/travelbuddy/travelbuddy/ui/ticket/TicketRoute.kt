@@ -25,6 +25,8 @@ fun TicketRoute(
     stop: Stop,
     departure: Departure,
     onGetTickets: suspend () -> List<Ticket>,
+    onPurchase: suspend (String) -> String,
+    onConfirmPurchase: suspend (String) -> Unit,
     viewModel: TicketViewModel = TicketViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
